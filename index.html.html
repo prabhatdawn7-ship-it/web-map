@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>University Surrounding Food Accessibility Map</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    display:flex;
+    background: linear-gradient(to right, #eef2f3, #dfe9f3);
+}
+
+/* SIDEBAR SMALL */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background:#1e2a38;
+    color:white;
+    padding:15px;
+    overflow-y:auto;
+}
+
+/* MAIN */
+.main {
+    flex:1;
+    padding:10px;
+}
+
+/* HEADER */
+.header {
+    text-align:center;
+    background:#ffffff;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:8px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.header h1 {
+    margin:0;
+    font-size:20px;
+}
+
+/* MAP FULL */
+#map {
+    height: calc(100vh - 80px);
+    border-radius:10px;
+}
+
+/* SIDEBAR BOX */
+.box {
+    background:#2f3e4e;
+    padding:10px;
+    margin-bottom:10px;
+    border-radius:8px;
+    font-size:13px;
+}
+
+/* LABEL */
+.label {
+    font-size:11px;
+    font-weight:bold;
+    background:white;
+    padding:2px 5px;
+    border-radius:5px;
+}
+
+/* LEGEND */
+.legend {
+    position:absolute;
+    top:100px;
+    right:20px;
+    background:white;
+    padding:12px;
+    border-radius:10px;
+    z-index:999;
+    box-shadow:0 0 10px gray;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+<h3>📊 Spatial Analysis</h3>
+
+<div class="box">
+<b>Why this topic?</b><br>
+This project analyzes food accessibility around the university.
+</div>
+
+<div class="box">
+<b>Objective</b><br>
+To map food stalls, cafes, and fruit shops using GIS.
+</div>
+
+<div class="box">
+<b>Methodology</b><br>
+Data collected using latitude & longitude and visualized in Web GIS.
+</div>
+
+<div class="box">
+<b>Spatial Pattern</b><br>
+Food vendors cluster near high student movement areas.
+</div>
+
+<div class="box">
+<b>Sustainability</b><br>
+Supports local vendors and ensures affordable food supply.
+</div>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<div class="header">
+<h1>📍 University Surrounding Food Vendor Spatial Map</h1>
+</div>
+
+<div id="map"></div>
+
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+<b>Legend</b><br><br>
+
+🟢 High Quality<br>
+🟠 Medium Quality<br>
+🔴 Low Quality<br><br>
+
+₹ Low | ₹₹ Medium | ₹₹₹ High
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+// MAP INIT
+var map = L.map('map', {
+    zoomControl:true,
+    scrollWheelZoom:true,
+    maxZoom:22
+});
+
+// BASEMAP
+var light = L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{ maxZoom:22 }
+).addTo(map);
+
+// RED PIN
+var redIcon = new L.Icon({
+iconUrl:'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+iconSize:[30,30]
+});
+
+// FUNCTIONS
+function getColor(q){
+if(q=="High") return "green";
+if(q=="Medium") return "orange";
+return "red";
+}
+
+function getPrice(p){
+if(p=="Low") return "₹";
+if(p=="Medium") return "₹₹";
+return "₹₹₹";
+}
+
+// DATA (21 LOCATIONS)
+var locations = [
+
+{name:"Hari Ram Fruit Stall", lat:18.45712, lon:73.85068, quality:"Medium", price:"Low"},
+{name:"Irani Cafe", lat:18.45724, lon:73.85173, quality:"Medium", price:"Medium"},
+{name:"Richie Rich", lat:18.45734, lon:73.85247, quality:"High", price:"High"},
+{name:"Sai Prasad", lat:18.45741, lon:73.85246, quality:"High", price:"Medium"},
+{name:"Raju Uncle", lat:18.45745, lon:73.85304, quality:"High", price:"Low"},
+{name:"Shreeman Tea Shop", lat:18.45748, lon:73.85301, quality:"Low", price:"Low"},
+{name:"Paratha House", lat:18.45728, lon:73.85320, quality:"Medium", price:"Low"},
+{name:"King Stall", lat:18.45728, lon:73.85326, quality:"Medium", price:"Medium"},
+{name:"Chinese Katta", lat:18.45673, lon:73.85333, quality:"High", price:"Medium"},
+{name:"Crazy Cheesy", lat:18.45633, lon:73.85341, quality:"Medium", price:"High"},
+
+{name:"Ganesh Snacks", lat:18.45690, lon:73.85290, quality:"Medium", price:"Low"},
+{name:"Om Sai Fast Food", lat:18.45650, lon:73.85220, quality:"High", price:"Medium"},
+{name:"Fresh Juice Center", lat:18.45620, lon:73.85180, quality:"High", price:"Low"},
+{name:"Campus Tea Point", lat:18.45670, lon:73.85140, quality:"Low", price:"Low"},
+{name:"Annapurna Mess", lat:18.45780, lon:73.85280, quality:"High", price:"Medium"},
+{name:"Tasty Bites", lat:18.45810, lon:73.85310, quality:"Medium", price:"High"},
+{name:"Green Leaf Juice", lat:18.45830, lon:73.85250, quality:"High", price:"Low"},
+{name:"Coffee Corner", lat:18.45800, lon:73.85190, quality:"Medium", price:"Medium"},
+{name:"Spicy Hub", lat:18.45760, lon:73.85160, quality:"Medium", price:"Medium"},
+{name:"Food Junction", lat:18.45720, lon:73.85120, quality:"High", price:"Low"},
+{name:"Quick Snacks", lat:18.45680, lon:73.85090, quality:"Low", price:"Low"}
+
+];
+
+// BOUNDS
+var bounds = [];
+
+// ADD MARKERS
+locations.forEach(function(loc){
+
+let color = getColor(loc.quality);
+let price = getPrice(loc.price);
+
+bounds.push([loc.lat, loc.lon]);
+
+// circle
+L.circleMarker([loc.lat, loc.lon], {
+radius:10,
+color:color,
+fillOpacity:0.7
+}).addTo(map);
+
+// red pin
+let marker = L.marker([loc.lat, loc.lon], {icon:redIcon}).addTo(map);
+
+marker.bindPopup(
+"<b>"+loc.name+"</b><br>"+
+"Quality: "+loc.quality+"<br>"+
+"Price: "+price
+);
+
+// label
+L.marker([loc.lat, loc.lon], {
+icon: L.divIcon({
+className:'label',
+html: loc.name + "<br>" + price,
+iconSize:[100,30],
+iconAnchor:[50,40]
+})
+}).addTo(map);
+
+});
+
+map.fitBounds(bounds);
+
+</script>
+
+</body>
+</html>
